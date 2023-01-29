@@ -1,0 +1,28 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 100px;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  fill: currentColor;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loader {
+    animation: loader-spin infinite 1s linear;
+  }
+}
+
+@keyframes loader-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
