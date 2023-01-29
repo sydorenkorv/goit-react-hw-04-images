@@ -1,61 +1,43 @@
-import PropTypes from 'prop-types';
-import { Component } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import css from './Modal.module.css';
 
-const modalRoot = document.querySelector('#modal-root');
+export const Modal = ({ isOpen, onClose, selectedImage }) => {
+  useEffect(() => {
+    const handleKeyDown = event => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
 
-class Modal extends Component {
-  static propTypes = {
-    title: PropTypes.string,
-    onClose: PropTypes.func.isRequired,
-    currentImageUrl: PropTypes.string,
-    currentImageDescription: PropTypes.string,
-  };
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
 
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);
+  if (!isOpen) {
+    return null;
   }
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-  }
-
-  handleClickBackdrop = e => {
-    if (e.target === e.currentTarget) {
-      this.props.onClose();
-    }
-  };
-
-  handleKeyDown = e => {
-    if (e.code === 'Escape') {
-      this.props.onClose();
-    }
-  };
-
-  render() {
-    const { title, onClose, currentImageUrl, currentImageDescription } =
-      this.props;
-
-    return createPortal(
-      <div className={css.backdrop} onClick={this.handleClickBackdrop}>
-        <div className={css.modal}>
-          <div className={css.wrapper}>
-            {title && <h1 className={css.title}>{title}</h1>}
-            <button className={css.button} type="button" onClick={onClose}>
-              Close
-            </button>
-          </div>
+  return ReactDOM.createPortal(
+    <div className={css.backdrop} onClick={onClose}>
+      <div className={css.modal} onClick={event => event.stopPropagation()}>
+        <button
+          onClick={onClose}
+          style={{ position: 'absolute', top: '10px', right: '10px' }}
+        >
+          X
+        </button>
+        {selectedImage && (
           <img
-            src={currentImageUrl}
-            alt={currentImageDescription}
-            loading="lazy"
+            src={selectedImage.largeImageURL}
+            alt={selectedImage.tags}
+            style={{ width: '100%' }}
           />
-        </div>
-      </div>,
-      modalRoot
-    );
-  }
-}
-
-export default Modal;
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+};
